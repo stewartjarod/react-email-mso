@@ -5,7 +5,7 @@
  * - DPI fix via OutlookExpr
  * - SafeContainer via Outlook/NotOutlook primitives
  * - BulletproofButton
- * - Ghost columns for a two-column footer
+ * - Columns block for a two-column footer
  *
  * Run: bun run examples/04-full-email.tsx
  * Run + save: bun run examples/04-full-email.tsx > output.html
@@ -24,6 +24,8 @@ import {
 import { render } from '@react-email/render';
 import {
   BulletproofButton,
+  Column,
+  Columns,
   NotOutlook,
   Outlook,
   OutlookExpr,
@@ -40,7 +42,6 @@ function SafeContainer({
 }) {
   return (
     <>
-      {/* Outlook: open fixed-width table */}
       <Outlook>
         <div
           dangerouslySetInnerHTML={{
@@ -49,7 +50,6 @@ function SafeContainer({
         />
       </Outlook>
 
-      {/* Modern: fluid div */}
       <NotOutlook>
         <div
           dangerouslySetInnerHTML={{
@@ -164,58 +164,35 @@ const FullEmail = () => (
         </div>
       </SafeContainer>
 
-      {/* Footer with ghost columns */}
+      {/* Footer */}
       <SafeContainer>
         <div style={{ padding: '32px 0' }}>
           <Hr style={{ borderColor: '#e2e8f0', margin: '0 0 24px' }} />
 
-          {/* Ghost table opener */}
-          <Outlook>
-            <div
-              dangerouslySetInnerHTML={{
-                __html:
-                  '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td width="300" valign="top">',
-              }}
-            />
-          </Outlook>
-
-          <div className="footer-col" style={{ display: 'inline-block', width: '100%', maxWidth: 300, verticalAlign: 'top' }}>
-            <Text style={{ fontSize: 13, color: '#999999', margin: '0 0 4px' }}>
-              Acme Inc, 123 Main St, San Francisco, CA 94102
-            </Text>
-            <Text style={{ fontSize: 13, color: '#999999', margin: '0' }}>
-              <Link href="https://example.com/unsubscribe" style={{ color: '#999999' }}>
-                Unsubscribe
-              </Link>{' '}
-              &middot;{' '}
-              <Link href="https://example.com/preferences" style={{ color: '#999999' }}>
-                Preferences
-              </Link>
-            </Text>
-          </div>
-
-          {/* Ghost table: close col 1, open col 2 */}
-          <Outlook>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: '</td><td width="300" valign="top">',
-              }}
-            />
-          </Outlook>
-
-          <div className="footer-col" style={{ display: 'inline-block', width: '100%', maxWidth: 300, verticalAlign: 'top', textAlign: 'right' as const }}>
-            <Text style={{ fontSize: 13, color: '#999999', margin: '0' }}>
-              Questions? Email{' '}
-              <Link href="mailto:billing@example.com" style={{ color: '#666666' }}>
-                billing@example.com
-              </Link>
-            </Text>
-          </div>
-
-          {/* Ghost table closer */}
-          <Outlook>
-            <div dangerouslySetInnerHTML={{ __html: '</td></tr></table>' }} />
-          </Outlook>
+          <Columns>
+            <Column width={300}>
+              <Text style={{ fontSize: 13, color: '#999999', margin: '0 0 4px' }}>
+                Acme Inc, 123 Main St, San Francisco, CA 94102
+              </Text>
+              <Text style={{ fontSize: 13, color: '#999999', margin: '0' }}>
+                <Link href="https://example.com/unsubscribe" style={{ color: '#999999' }}>
+                  Unsubscribe
+                </Link>{' '}
+                &middot;{' '}
+                <Link href="https://example.com/preferences" style={{ color: '#999999' }}>
+                  Preferences
+                </Link>
+              </Text>
+            </Column>
+            <Column width={300}>
+              <Text style={{ fontSize: 13, color: '#999999', margin: '0', textAlign: 'right' as const }}>
+                Questions? Email{' '}
+                <Link href="mailto:billing@example.com" style={{ color: '#666666' }}>
+                  billing@example.com
+                </Link>
+              </Text>
+            </Column>
+          </Columns>
         </div>
       </SafeContainer>
     </Body>
@@ -227,7 +204,6 @@ async function main() {
 
   console.log(html);
 
-  // Validation summary to stderr so piping to file stays clean
   const checks = [
     ['<!--[if mso]>', 'MSO conditionals'],
     ['<!--[if !mso]><!-->', 'Not-MSO conditionals'],
