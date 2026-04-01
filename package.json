@@ -1,0 +1,65 @@
+{
+  "name": "react-email-mso",
+  "version": "0.1.1",
+  "description": "MSO conditional comments for react-email. Outlook-safe rendering with zero dependencies.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist coverage",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm clean && pnpm build"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
+    "@react-email/components": "^1.0.0",
+    "@react-email/render": "^2.0.0",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "keywords": [
+    "react-email",
+    "mso",
+    "outlook",
+    "conditional-comments",
+    "email",
+    "vml",
+    "bulletproof-button"
+  ],
+  "author": "Jarod",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
