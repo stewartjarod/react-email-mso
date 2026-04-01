@@ -141,7 +141,7 @@ const Email = () => (
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `href` | `string` | required | Button link URL |
-| `children` | `ReactNode` | required | Button text |
+| `children` | `ReactNode` | required | Button text (strings or JSX) |
 | `color` | `string` | `'#007bff'` | Background color |
 | `textColor` | `string` | `'#ffffff'` | Text color |
 | `width` | `number` | `200` | Width in pixels |
@@ -175,6 +175,79 @@ const Email = () => (
          text-align:center;text-decoration:none;width:200px">
   Get Started
 </a>
+```
+
+### `<Columns>` / `<Column>`
+
+Responsive multi-column layout. Outlook gets a fixed-width ghost table; modern clients get inline-block divs that stack on mobile.
+
+```tsx
+import { Columns, Column, processConditionals } from 'react-email-mso';
+
+const Email = () => (
+  <Columns gap={20}>
+    <Column width={280}>
+      <img src="product1.jpg" width={280} />
+      <p>Wireless Headphones — $199</p>
+    </Column>
+    <Column width={280}>
+      <img src="product2.jpg" width={280} />
+      <p>Smart Watch — $299</p>
+    </Column>
+  </Columns>
+);
+```
+
+#### Props
+
+**Columns:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `Column[]` | required | Column elements |
+| `gap` | `number` | `0` | Gap between columns in pixels |
+
+**Column:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `width` | `number` | required | Column width in pixels |
+| `children` | `ReactNode` | required | Column content |
+
+#### What it renders
+
+**Outlook** (ghost table):
+
+```html
+<!--[if mso]>
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+  <tr>
+    <td width="280" valign="top">
+<![endif]-->
+      <div style="display:inline-block;width:100%;max-width:280px">
+        <!-- Column 1 content -->
+      </div>
+<!--[if mso]>
+    </td>
+    <td width="20">&nbsp;</td>
+    <td width="280" valign="top">
+<![endif]-->
+      <div style="display:inline-block;width:100%;max-width:280px">
+        <!-- Column 2 content -->
+      </div>
+<!--[if mso]>
+    </td>
+  </tr>
+</table>
+<![endif]-->
+```
+
+**Modern clients:** Inline-block divs that respect `max-width` and stack on mobile with a media query:
+
+```css
+@media screen and (max-width: 600px) {
+  .column { display: block !important; width: 100% !important; }
+}
 ```
 
 ## How It Works
