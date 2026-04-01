@@ -1,13 +1,25 @@
-import type { NotOutlookProps, OutlookExprProps, OutlookProps } from './types';
+import type { OutlookProps } from './types';
 
-export function Outlook({ children }: OutlookProps) {
+export function Outlook({ children, not, expr, fallback }: OutlookProps) {
+  if (fallback) {
+    return (
+      <>
+        <mso-if>{children}</mso-if>
+        <mso-else>{fallback}</mso-else>
+      </>
+    );
+  }
+  if (expr) return <mso-expr data-expr={expr}>{children}</mso-expr>;
+  if (not) return <mso-else>{children}</mso-else>;
   return <mso-if>{children}</mso-if>;
 }
 
-export function NotOutlook({ children }: NotOutlookProps) {
-  return <mso-else>{children}</mso-else>;
+/** @deprecated Use `<Outlook not>` instead */
+export function NotOutlook({ children }: { children: React.ReactNode }) {
+  return <Outlook not>{children}</Outlook>;
 }
 
-export function OutlookExpr({ expr, children }: OutlookExprProps) {
-  return <mso-expr data-expr={expr}>{children}</mso-expr>;
+/** @deprecated Use `<Outlook expr="...">` instead */
+export function OutlookExpr({ expr, children }: { expr: string; children: React.ReactNode }) {
+  return <Outlook expr={expr}>{children}</Outlook>;
 }

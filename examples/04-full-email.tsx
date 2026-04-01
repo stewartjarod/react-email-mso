@@ -2,8 +2,8 @@
  * Example 4: Full Production Email
  *
  * A complete transactional email combining all patterns:
- * - DPI fix via OutlookExpr
- * - SafeContainer via Outlook/NotOutlook primitives
+ * - DPI fix via Outlook expr
+ * - SafeContainer via Outlook paired/standalone modes
  * - BulletproofButton
  * - Columns block for a two-column footer
  *
@@ -26,9 +26,7 @@ import {
   BulletproofButton,
   Column,
   Columns,
-  NotOutlook,
   Outlook,
-  OutlookExpr,
   processConditionals,
 } from '../src';
 
@@ -50,19 +48,19 @@ function SafeContainer({
         />
       </Outlook>
 
-      <NotOutlook>
+      <Outlook not>
         <div
           dangerouslySetInnerHTML={{
             __html: `<div style="max-width:${width}px;margin:0 auto;padding:0 20px">`,
           }}
         />
-      </NotOutlook>
+      </Outlook>
 
       {children}
 
-      <NotOutlook>
+      <Outlook not>
         <div dangerouslySetInnerHTML={{ __html: '</div>' }} />
-      </NotOutlook>
+      </Outlook>
 
       <Outlook>
         <div dangerouslySetInnerHTML={{ __html: '</td></tr></table>' }} />
@@ -74,7 +72,7 @@ function SafeContainer({
 const FullEmail = () => (
   <Html>
     <Head>
-      <OutlookExpr expr="gte mso 9">
+      <Outlook expr="gte mso 9">
         <noscript>
           <xml>
             <o:OfficeDocumentSettings
@@ -85,7 +83,7 @@ const FullEmail = () => (
             </o:OfficeDocumentSettings>
           </xml>
         </noscript>
-      </OutlookExpr>
+      </Outlook>
       <style>{`
         @media screen and (max-width: 600px) {
           .footer-col { display: block !important; width: 100% !important; padding-bottom: 16px !important; }

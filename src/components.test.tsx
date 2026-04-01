@@ -1,10 +1,10 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { NotOutlook, Outlook, OutlookExpr } from './components';
+import { Outlook } from './components';
 import { processConditionals } from './process';
 
 describe('Outlook', () => {
-  it('renders children wrapped in mso-if tags', () => {
+  it('wraps children in mso-if by default', () => {
     const html = renderToStaticMarkup(
       <Outlook>
         <table>
@@ -20,54 +20,80 @@ describe('Outlook', () => {
       '<mso-if><table><tbody><tr><td>Outlook content</td></tr></tbody></table></mso-if>'
     );
   });
-});
 
-describe('NotOutlook', () => {
-  it('renders children wrapped in mso-else tags', () => {
+  it('wraps children in mso-else when not prop is set', () => {
     const html = renderToStaticMarkup(
-      <NotOutlook>
+      <Outlook not>
         <div>Modern content</div>
-      </NotOutlook>
+      </Outlook>
     );
     expect(html).toBe('<mso-else><div>Modern content</div></mso-else>');
   });
-});
 
-describe('OutlookExpr', () => {
-  it('renders children wrapped in mso-expr with data-expr attribute', () => {
+  it('wraps children in mso-expr when expr prop is set', () => {
     const html = renderToStaticMarkup(
-      <OutlookExpr expr="gte mso 9">
+      <Outlook expr="gte mso 9">
         <style>{'body { font-family: Calibri; }'}</style>
-      </OutlookExpr>
+      </Outlook>
     );
     expect(html).toContain('data-expr="gte mso 9"');
     expect(html).toContain('<style>');
   });
-});
 
-describe('full pipeline', () => {
-  it('Outlook component through processConditionals produces valid MSO output', () => {
+  it('renders both mso-if and mso-else when fallback is provided', () => {
     const html = renderToStaticMarkup(
-      <div>
-        <Outlook>
-          <table>
-            <tbody>
-              <tr>
-                <td width="600">Ghost table</td>
-              </tr>
-            </tbody>
-          </table>
-        </Outlook>
-        <NotOutlook>
-          <div style={{ maxWidth: 600 }}>Modern layout</div>
-        </NotOutlook>
-      </div>
+      <Outlook fallback={<div style={{ maxWidth: 600 }}>Modern layout</div>}>
+        <table>
+          <tbody>
+            <tr>
+              <td width="600">Ghost table</td>
+            </tr>
+          </tbody>
+        </table>
+      </Outlook>
+    );
+    expect(html).toContain('<mso-if>');
+    expect(html).toContain('<mso-else>');
+    expect(html).toContain('Ghost table');
+    expect(html).toContain('Modern layout');
+  });
+
+  it('full pipeline: fallback mode produces both conditional blocks', () => {
+    const html = renderToStaticMarkup(
+      <Outlook fallback={<div>Modern</div>}>
+        <table>
+          <tbody>
+            <tr>
+              <td>Outlook</td>
+            </tr>
+          </tbody>
+        </table>
+      </Outlook>
     );
     const result = processConditionals(html);
     expect(result).toContain('<!--[if mso]>');
     expect(result).toContain('<![endif]-->');
     expect(result).toContain('<!--[if !mso]><!-->');
     expect(result).toContain('<!--<![endif]-->');
+    expect(result).toContain('Outlook');
+    expect(result).toContain('Modern');
+    expect(result).not.toContain('<mso-');
+  });
+
+  it('full pipeline: not mode produces valid not-mso output', () => {
+    const html = renderToStaticMarkup(
+      <div>
+        <Outlook>
+          <p>Outlook only</p>
+        </Outlook>
+        <Outlook not>
+          <p>Modern only</p>
+        </Outlook>
+      </div>
+    );
+    const result = processConditionals(html);
+    expect(result).toContain('<!--[if mso]>');
+    expect(result).toContain('<!--[if !mso]><!-->');
     expect(result).not.toContain('<mso-if>');
     expect(result).not.toContain('<mso-else>');
   });

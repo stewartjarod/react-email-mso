@@ -1,8 +1,8 @@
 /**
- * Example 1: Primitives — <Outlook>, <NotOutlook>, <OutlookExpr>
+ * Example 1: The <Outlook> Component
  *
- * Shows the core building blocks for MSO conditional rendering.
- * Run: npx tsx examples/01-primitives.tsx
+ * Shows all three modes: paired (fallback), standalone, and version targeting.
+ * Run: bun run examples/01-primitives.tsx
  */
 import {
   Body,
@@ -14,13 +14,13 @@ import {
   Text,
 } from '@react-email/components';
 import { render } from '@react-email/render';
-import { NotOutlook, Outlook, OutlookExpr, processConditionals } from '../src';
+import { Outlook, processConditionals } from '../src';
 
 const PrimitivesEmail = () => (
   <Html>
     <Head>
       {/* Force 96 DPI in Outlook to prevent scaling issues */}
-      <OutlookExpr expr="gte mso 9">
+      <Outlook expr="gte mso 9">
         <noscript>
           <xml>
             <o:OfficeDocumentSettings
@@ -31,11 +31,25 @@ const PrimitivesEmail = () => (
             </o:OfficeDocumentSettings>
           </xml>
         </noscript>
-      </OutlookExpr>
+      </Outlook>
     </Head>
     <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'sans-serif' }}>
-      {/* Outlook gets a fixed-width table; modern clients get a fluid div */}
-      <Outlook>
+      {/* Paired mode: Outlook content + modern fallback together */}
+      <Outlook
+        fallback={
+          <Container style={{ maxWidth: 600, margin: '0 auto' }}>
+            <Section style={{ padding: '40px 20px' }}>
+              <Heading as="h1" style={{ color: '#1a1a1a', fontSize: 24 }}>
+                Welcome
+              </Heading>
+              <Text style={{ color: '#4a4a4a', fontSize: 16, lineHeight: '24px' }}>
+                You are reading this in a <strong>modern email client</strong>.
+                This content uses a responsive container with max-width.
+              </Text>
+            </Section>
+          </Container>
+        }
+      >
         <table
           role="presentation"
           cellSpacing={0}
@@ -56,20 +70,6 @@ const PrimitivesEmail = () => (
           </tbody>
         </table>
       </Outlook>
-
-      <NotOutlook>
-        <Container style={{ maxWidth: 600, margin: '0 auto' }}>
-          <Section style={{ padding: '40px 20px' }}>
-            <Heading as="h1" style={{ color: '#1a1a1a', fontSize: 24 }}>
-              Welcome
-            </Heading>
-            <Text style={{ color: '#4a4a4a', fontSize: 16, lineHeight: '24px' }}>
-              You are reading this in a <strong>modern email client</strong>.
-              This content uses a responsive container with max-width.
-            </Text>
-          </Section>
-        </Container>
-      </NotOutlook>
     </Body>
   </Html>
 );
@@ -77,7 +77,7 @@ const PrimitivesEmail = () => (
 async function main() {
   const html = processConditionals(await render(<PrimitivesEmail />));
 
-  console.log('=== Primitives Example ===\n');
+  console.log('=== Outlook Component Example ===\n');
   console.log(html);
   console.log('\n=== Key sections ===\n');
 

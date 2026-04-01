@@ -2,15 +2,9 @@ import type { ReactNode } from 'react';
 
 export type OutlookProps = {
   children: ReactNode;
-};
-
-export type NotOutlookProps = {
-  children: ReactNode;
-};
-
-export type OutlookExprProps = {
-  expr: string;
-  children: ReactNode;
+  not?: boolean;
+  expr?: string;
+  fallback?: ReactNode;
 };
 
 declare module 'react' {

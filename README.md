@@ -20,17 +20,14 @@ Requires React 19+.
 
 ```tsx
 import { render } from '@react-email/render';
-import { Outlook, NotOutlook, processConditionals } from 'react-email-mso';
+import { Outlook, processConditionals } from 'react-email-mso';
 
 const Email = () => (
   <Html>
     <Body>
-      <Outlook>
+      <Outlook fallback={<div style={{ maxWidth: 600 }}>Modern layout</div>}>
         <table><tbody><tr><td width="600">Ghost table for Outlook</td></tr></tbody></table>
       </Outlook>
-      <NotOutlook>
-        <div style={{ maxWidth: 600 }}>Modern layout</div>
-      </NotOutlook>
     </Body>
   </Html>
 );
@@ -53,34 +50,51 @@ Output:
 
 ### `<Outlook>`
 
-Wraps children in `<!--[if mso]>...<![endif]-->`. Content is only visible in Outlook (Word rendering engine).
+One component, three modes.
+
+#### Paired mode (most common)
+
+Use `fallback` to render both Outlook and modern content together. Keeps them co-located in your template.
+
+```tsx
+<Outlook fallback={<div>Modern clients see this</div>}>
+  <table><tbody><tr><td>Outlook sees this</td></tr></tbody></table>
+</Outlook>
+```
+
+#### Standalone mode
+
+Render content for only Outlook, or only non-Outlook clients.
 
 ```tsx
 <Outlook>
   <table><tbody><tr><td>Only Outlook sees this</td></tr></tbody></table>
 </Outlook>
-```
 
-### `<NotOutlook>`
-
-Wraps children in `<!--[if !mso]><!-->...<!--<![endif]-->`. Content is visible in every client _except_ Outlook.
-
-```tsx
-<NotOutlook>
+<Outlook not>
   <div>Everything except Outlook sees this</div>
-</NotOutlook>
+</Outlook>
 ```
 
-### `<OutlookExpr>`
+#### Version targeting
 
-Wraps children in a custom MSO conditional expression. Use for targeting specific Outlook versions.
+Target specific Outlook versions with `expr`.
 
 ```tsx
-<OutlookExpr expr="gte mso 9">
+<Outlook expr="gte mso 9">
   <style>{'body { font-family: Calibri; }'}</style>
-</OutlookExpr>
+</Outlook>
 {/* Output: <!--[if gte mso 9]><style>...</style><![endif]--> */}
 ```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | required | Outlook content |
+| `not` | `boolean` | `false` | Invert — render for non-Outlook clients |
+| `expr` | `string` | — | Custom conditional expression (e.g. `"gte mso 9"`) |
+| `fallback` | `ReactNode` | — | Non-Outlook content (renders both blocks) |
 
 #### Outlook Version Numbers
 
@@ -111,7 +125,7 @@ const html = processConditionals(await render(<MyEmail />));
 
 ## Blocks
 
-Higher-level components that use the primitives internally to automatically render the right markup for each client.
+Higher-level components that use `<Outlook>` internally to automatically render the right markup for each client.
 
 ### `<BulletproofButton>`
 
@@ -264,19 +278,7 @@ This package uses three custom elements as markers:
 | `<mso-else>...</mso-else>` | `<!--[if !mso]><!-->...<!--<![endif]-->` |
 | `<mso-expr data-expr="X">...</mso-expr>` | `<!--[if X]>...<![endif]-->` |
 
-The React components (`<Outlook>`, `<NotOutlook>`, `<OutlookExpr>`) emit these custom elements. Then `processConditionals()` does a simple string replacement on the final HTML — no AST parsing, no rehype pipeline, no custom renderer.
-
-## vs jsx-email
-
-jsx-email's `<Conditional>` component solves the same problem with a 200+ line, two-phase architecture: placeholder custom elements → rehype AST transformation → raw HTML comment injection. It requires jsx-email's custom renderer and has had duplication bugs and closer corruption bugs. Its `<![endif]/-->` closer syntax [breaks Classic Outlook](https://github.com/shellscape/jsx-email/issues/403).
-
-| | jsx-email | react-email-mso |
-|---|---|---|
-| Lines of code | ~200+ across 5 files | ~30 |
-| Dependencies | rehype, rehype-stringify, hast-util-* | None |
-| Renderer | Custom only (jsxToString) | Any (react-email, react-dom, jsx-email) |
-| Bug surface | AST walking, plugin ordering | Simple string replacement |
-| Closer syntax | `<![endif]/-->` (broken) | `<![endif]-->` (correct) |
+`<Outlook>` emits these custom elements based on its props. Then `processConditionals()` does a simple string replacement on the final HTML — no AST parsing, no rehype pipeline, no custom renderer.
 
 ## Constraints
 

@@ -1,5 +1,5 @@
 import { Children, type ReactElement, type ReactNode } from 'react';
-import { NotOutlook, Outlook } from '../components';
+import { Outlook } from '../components';
 
 export type ColumnProps = {
   width: number;
@@ -64,9 +64,9 @@ export function Columns({ children, gap = 0 }: ColumnsProps) {
             </Outlook>
 
             {!isLast && gap > 0 && (
-              <NotOutlook>
+              <Outlook not>
                 <div style={{ display: 'inline-block', width: gap }}>&nbsp;</div>
-              </NotOutlook>
+              </Outlook>
             )}
           </span>
         );

@@ -6,9 +6,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
   BulletproofButton,
-  NotOutlook,
   Outlook,
-  OutlookExpr,
   processConditionals,
 } from '../src';
 
@@ -52,14 +50,14 @@ test('Content with HTML entities survives processing', () => {
   assert(result.includes('<!--[if mso]>'), 'missing conditional');
 });
 
-// --- Edge case 3: Multiple Outlook/NotOutlook pairs ---
-test('Multiple pairs in same email all get replaced', () => {
+// --- Edge case 3: Multiple pairs using new API ---
+test('Multiple Outlook/Outlook not pairs all get replaced', () => {
   const html = renderToStaticMarkup(
     <div>
       <Outlook><p>A</p></Outlook>
-      <NotOutlook><p>B</p></NotOutlook>
+      <Outlook not><p>B</p></Outlook>
       <Outlook><p>C</p></Outlook>
-      <NotOutlook><p>D</p></NotOutlook>
+      <Outlook not><p>D</p></Outlook>
       <Outlook><p>E</p></Outlook>
     </div>
   );
@@ -71,12 +69,12 @@ test('Multiple pairs in same email all get replaced', () => {
   assert(!result.includes('<mso-'), 'leaked custom element');
 });
 
-// --- Edge case 4: OutlookExpr with various expressions ---
-test('OutlookExpr handles version targeting expressions', () => {
+// --- Edge case 4: Outlook expr with various expressions ---
+test('Outlook expr handles version targeting expressions', () => {
   const expressions = ['gte mso 9', 'lt mso 16', 'mso 12', 'gte mso 14'];
   for (const expr of expressions) {
     const html = renderToStaticMarkup(
-      <OutlookExpr expr={expr}><p>test</p></OutlookExpr>
+      <Outlook expr={expr}><p>test</p></Outlook>
     );
     const result = processConditionals(html);
     assert(result.includes(`<!--[if ${expr}]>`), `failed for expr: ${expr}`);
@@ -95,23 +93,20 @@ test('BulletproofButton escapes special chars in props', () => {
     </BulletproofButton>
   );
   const result = processConditionals(html);
-  // Ampersand in URL should be escaped in VML
   assert(!result.includes('<mso-'), 'leaked custom element');
   assert(result.includes('v:roundrect'), 'missing VML');
 });
 
-// --- Edge case 6: BulletproofButton with JSX children (known limitation) ---
-test('BulletproofButton with JSX children: CSS path works, VML path is empty', () => {
+// --- Edge case 6: BulletproofButton with JSX children ---
+test('BulletproofButton renders JSX children in both paths', () => {
   const html = renderToStaticMarkup(
     <BulletproofButton href="https://example.com">
       <span>Bold text</span>
     </BulletproofButton>
   );
   const result = processConditionals(html);
-  // CSS path should render the span
   assert(result.includes('<span>Bold text</span>'), 'CSS path missing children');
-  // VML path will have empty center tag (known limitation)
-  assert(result.includes('<center'), 'VML center tag missing');
+  assert(result.includes('Bold text'), 'VML path missing children text');
 });
 
 // --- Edge case 7: processConditionals is idempotent ---
@@ -119,7 +114,7 @@ test('Running processConditionals twice produces same output', () => {
   const html = renderToStaticMarkup(
     <div>
       <Outlook><p>test</p></Outlook>
-      <NotOutlook><p>test</p></NotOutlook>
+      <Outlook not><p>test</p></Outlook>
     </div>
   );
   const once = processConditionals(html);
@@ -140,14 +135,12 @@ test('Handles 50 conditional blocks without issues', () => {
 
 // --- Edge case 9: Text content that looks like a marker ---
 test('Text containing "mso-if" as plain text is NOT affected', () => {
-  // This tests the known limitation — marker text in content WILL get replaced
   const html = '<p>Use the &lt;mso-if&gt; element for Outlook</p>';
   const result = processConditionals(html);
-  // HTML-escaped angle brackets should survive (entities, not real tags)
   assert(result.includes('&lt;mso-if&gt;'), 'escaped markers should survive');
 });
 
-// --- Edge case 10: Outlook inside a react-email Container ---
+// --- Edge case 10: Outlook inside deeply nested HTML ---
 test('Works when Outlook is deeply nested in HTML', () => {
   const html = renderToStaticMarkup(
     <html>
@@ -171,6 +164,21 @@ test('Works when Outlook is deeply nested in HTML', () => {
   const result = processConditionals(html);
   assert(result.includes('<!--[if mso]>'), 'missing conditional in deep nesting');
   assert(result.includes('Deep content'), 'content missing');
+  assert(!result.includes('<mso-'), 'leaked custom element');
+});
+
+// --- Edge case 11: Fallback mode produces paired blocks ---
+test('Outlook fallback mode produces both mso and not-mso blocks', () => {
+  const html = renderToStaticMarkup(
+    <Outlook fallback={<div>Modern</div>}>
+      <table><tbody><tr><td>Outlook</td></tr></tbody></table>
+    </Outlook>
+  );
+  const result = processConditionals(html);
+  assert(result.includes('<!--[if mso]>'), 'missing mso block');
+  assert(result.includes('<!--[if !mso]><!-->'), 'missing not-mso block');
+  assert(result.includes('Outlook'), 'missing outlook content');
+  assert(result.includes('Modern'), 'missing fallback content');
   assert(!result.includes('<mso-'), 'leaked custom element');
 });
 
