@@ -84,6 +84,22 @@ describe('BulletproofButton', () => {
     expect(html).toContain('&lt;script&gt;');
   });
 
+  it('renders JSX children in both VML and CSS paths', () => {
+    const html = renderToStaticMarkup(
+      <BulletproofButton href="https://example.com">
+        <span style={{ fontWeight: 'bold' }}>Bold text</span>
+      </BulletproofButton>
+    );
+    const result = processConditionals(html);
+    // CSS path renders JSX children
+    expect(result).toContain('<span style="font-weight:bold">Bold text</span>');
+    // VML path also renders the children (via renderToStaticMarkup)
+    expect(result).toContain('Bold text');
+    // VML center tag should not be empty
+    const vmlSection = result.split('<!--[if mso]>')[1].split('<![endif]-->')[0];
+    expect(vmlSection).toContain('Bold text');
+  });
+
   it('clamps arcsize to 100% for large borderRadius', () => {
     const html = renderToStaticMarkup(
       <BulletproofButton href="https://example.com" borderRadius={100} height={40}>

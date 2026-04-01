@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { NotOutlook, Outlook } from '../components';
 
 export type BulletproofButtonProps = {
@@ -37,7 +38,9 @@ export function BulletproofButton({
   const safeColor = escapeAttr(color);
   const safeTextColor = escapeAttr(textColor);
   const safeFontFamily = escapeAttr(fontFamily);
-  const buttonText = typeof children === 'string' ? escapeAttr(children) : '';
+  const buttonText = typeof children === 'string'
+    ? escapeAttr(children)
+    : renderToStaticMarkup(<>{children}</>);
 
   return (
     <>
