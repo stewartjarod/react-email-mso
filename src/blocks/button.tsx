@@ -42,47 +42,47 @@ export function BulletproofButton({
     ? escapeAttr(children)
     : renderToStaticMarkup(<>{children}</>);
 
-  const cssButton = (
-    <a
-      href={href}
-      style={{
-        backgroundColor: color,
-        borderRadius,
-        color: textColor,
-        display: 'inline-block',
-        fontFamily,
-        fontSize,
-        fontWeight: 'bold',
-        lineHeight: `${height}px`,
-        textAlign: 'center',
-        textDecoration: 'none',
-        width,
-      }}
+  const vmlButton = (
+    <table
+      role="presentation"
+      cellSpacing={0}
+      cellPadding={0}
+      border={0}
     >
-      {children}
-    </a>
+      <tbody>
+        <tr>
+          <td
+            align="center"
+            style={{ borderRadius }}
+            dangerouslySetInnerHTML={{
+              __html: `<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeHref}" style="height:${height}px;v-text-anchor:middle;width:${width}px;" arcsize="${arcsize}%" stroke="f" fillcolor="${safeColor}"><w:anchorlock/><center style="color:${safeTextColor};font-family:${safeFontFamily};font-size:${fontSize}px;">${buttonText}</center></v:roundrect>`,
+            }}
+          />
+        </tr>
+      </tbody>
+    </table>
   );
 
   return (
-    <Outlook fallback={cssButton}>
-      <table
-        role="presentation"
-        cellSpacing={0}
-        cellPadding={0}
-        border={0}
+    <Outlook fallback={vmlButton}>
+      <a
+        href={href}
+        style={{
+          backgroundColor: color,
+          borderRadius,
+          color: textColor,
+          display: 'inline-block',
+          fontFamily,
+          fontSize,
+          fontWeight: 'bold',
+          lineHeight: `${height}px`,
+          textAlign: 'center',
+          textDecoration: 'none',
+          width,
+        }}
       >
-        <tbody>
-          <tr>
-            <td
-              align="center"
-              style={{ borderRadius }}
-              dangerouslySetInnerHTML={{
-                __html: `<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeHref}" style="height:${height}px;v-text-anchor:middle;width:${width}px;" arcsize="${arcsize}%" stroke="f" fillcolor="${safeColor}"><w:anchorlock/><center style="color:${safeTextColor};font-family:${safeFontFamily};font-size:${fontSize}px;">${buttonText}</center></v:roundrect>`,
-              }}
-            />
-          </tr>
-        </tbody>
-      </table>
+        {children}
+      </a>
     </Outlook>
   );
 }

@@ -34,41 +34,41 @@ const PrimitivesEmail = () => (
       </Outlook>
     </Head>
     <Body style={{ backgroundColor: '#f6f9fc', fontFamily: 'sans-serif' }}>
-      {/* Paired mode: Outlook content + modern fallback together */}
+      {/* Paired mode: children are modern default, fallback is the Outlook workaround */}
       <Outlook
         fallback={
-          <Container style={{ maxWidth: 600, margin: '0 auto' }}>
-            <Section style={{ padding: '40px 20px' }}>
-              <Heading as="h1" style={{ color: '#1a1a1a', fontSize: 24 }}>
-                Welcome
-              </Heading>
-              <Text style={{ color: '#4a4a4a', fontSize: 16, lineHeight: '24px' }}>
-                You are reading this in a <strong>modern email client</strong>.
-                This content uses a responsive container with max-width.
-              </Text>
-            </Section>
-          </Container>
+          <table
+            role="presentation"
+            cellSpacing={0}
+            cellPadding={0}
+            border={0}
+            width={600}
+            style={{ margin: '0 auto' }}
+          >
+            <tbody>
+              <tr>
+                <td>
+                  <p style={{ fontFamily: 'sans-serif', fontSize: 14 }}>
+                    You are reading this in <strong>Microsoft Outlook</strong>.
+                    This content is wrapped in a fixed-width table.
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         }
       >
-        <table
-          role="presentation"
-          cellSpacing={0}
-          cellPadding={0}
-          border={0}
-          width={600}
-          style={{ margin: '0 auto' }}
-        >
-          <tbody>
-            <tr>
-              <td>
-                <p style={{ fontFamily: 'sans-serif', fontSize: 14 }}>
-                  You are reading this in <strong>Microsoft Outlook</strong>.
-                  This content is wrapped in a fixed-width table.
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <Container style={{ maxWidth: 600, margin: '0 auto' }}>
+          <Section style={{ padding: '40px 20px' }}>
+            <Heading as="h1" style={{ color: '#1a1a1a', fontSize: 24 }}>
+              Welcome
+            </Heading>
+            <Text style={{ color: '#4a4a4a', fontSize: 16, lineHeight: '24px' }}>
+              You are reading this in a <strong>modern email client</strong>.
+              This content uses a responsive container with max-width.
+            </Text>
+          </Section>
+        </Container>
       </Outlook>
     </Body>
   </Html>

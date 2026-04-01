@@ -40,34 +40,24 @@ describe('Outlook', () => {
     expect(html).toContain('<style>');
   });
 
-  it('renders both mso-if and mso-else when fallback is provided', () => {
+  it('renders fallback in mso-if and children in mso-else', () => {
     const html = renderToStaticMarkup(
-      <Outlook fallback={<div style={{ maxWidth: 600 }}>Modern layout</div>}>
-        <table>
-          <tbody>
-            <tr>
-              <td width="600">Ghost table</td>
-            </tr>
-          </tbody>
-        </table>
+      <Outlook fallback={<table><tbody><tr><td width="600">Ghost table</td></tr></tbody></table>}>
+        <div style={{ maxWidth: 600 }}>Modern layout</div>
       </Outlook>
     );
-    expect(html).toContain('<mso-if>');
-    expect(html).toContain('<mso-else>');
+    // fallback (Outlook content) goes in mso-if
+    expect(html).toContain('<mso-if><table>');
+    // children (modern content) goes in mso-else
+    expect(html).toContain('<mso-else><div');
     expect(html).toContain('Ghost table');
     expect(html).toContain('Modern layout');
   });
 
   it('full pipeline: fallback mode produces both conditional blocks', () => {
     const html = renderToStaticMarkup(
-      <Outlook fallback={<div>Modern</div>}>
-        <table>
-          <tbody>
-            <tr>
-              <td>Outlook</td>
-            </tr>
-          </tbody>
-        </table>
+      <Outlook fallback={<table><tbody><tr><td>Outlook</td></tr></tbody></table>}>
+        <div>Modern</div>
       </Outlook>
     );
     const result = processConditionals(html);
@@ -75,8 +65,10 @@ describe('Outlook', () => {
     expect(result).toContain('<![endif]-->');
     expect(result).toContain('<!--[if !mso]><!-->');
     expect(result).toContain('<!--<![endif]-->');
-    expect(result).toContain('Outlook');
-    expect(result).toContain('Modern');
+    // Outlook content inside mso block
+    expect(result).toMatch(/<!--\[if mso\]>.*Outlook.*<!\[endif\]-->/s);
+    // Modern content inside not-mso block
+    expect(result).toMatch(/<!--\[if !mso\]><!-->.*Modern.*<!--<!\[endif\]-->/s);
     expect(result).not.toContain('<mso-');
   });
 

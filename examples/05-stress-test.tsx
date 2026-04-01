@@ -167,18 +167,20 @@ test('Works when Outlook is deeply nested in HTML', () => {
   assert(!result.includes('<mso-'), 'leaked custom element');
 });
 
-// --- Edge case 11: Fallback mode produces paired blocks ---
-test('Outlook fallback mode produces both mso and not-mso blocks', () => {
+// --- Edge case 11: Fallback mode — children are modern, fallback is Outlook ---
+test('Outlook fallback mode: fallback in mso, children in not-mso', () => {
   const html = renderToStaticMarkup(
-    <Outlook fallback={<div>Modern</div>}>
-      <table><tbody><tr><td>Outlook</td></tr></tbody></table>
+    <Outlook fallback={<table><tbody><tr><td>Outlook</td></tr></tbody></table>}>
+      <div>Modern</div>
     </Outlook>
   );
   const result = processConditionals(html);
   assert(result.includes('<!--[if mso]>'), 'missing mso block');
   assert(result.includes('<!--[if !mso]><!-->'), 'missing not-mso block');
-  assert(result.includes('Outlook'), 'missing outlook content');
-  assert(result.includes('Modern'), 'missing fallback content');
+  // Outlook content inside mso block
+  assert(/<!--\[if mso\]>.*Outlook.*<!\[endif\]-->/s.test(result), 'Outlook content not in mso block');
+  // Modern content inside not-mso block
+  assert(/<!--\[if !mso\]><!-->.*Modern.*<!--<!\[endif\]-->/s.test(result), 'Modern content not in not-mso block');
   assert(!result.includes('<mso-'), 'leaked custom element');
 });
 

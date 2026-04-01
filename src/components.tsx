@@ -4,8 +4,8 @@ export function Outlook({ children, not, expr, fallback }: OutlookProps) {
   if (fallback) {
     return (
       <>
-        <mso-if>{children}</mso-if>
-        <mso-else>{fallback}</mso-else>
+        <mso-if>{fallback}</mso-if>
+        <mso-else>{children}</mso-else>
       </>
     );
   }

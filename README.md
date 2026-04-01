@@ -25,8 +25,8 @@ import { Outlook, processConditionals } from 'react-email-mso';
 const Email = () => (
   <Html>
     <Body>
-      <Outlook fallback={<div style={{ maxWidth: 600 }}>Modern layout</div>}>
-        <table><tbody><tr><td width="600">Ghost table for Outlook</td></tr></tbody></table>
+      <Outlook fallback={<table><tbody><tr><td width="600">Ghost table for Outlook</td></tr></tbody></table>}>
+        <div style={{ maxWidth: 600 }}>Modern layout</div>
       </Outlook>
     </Body>
   </Html>
@@ -54,11 +54,11 @@ One component, three modes.
 
 #### Paired mode (most common)
 
-Use `fallback` to render both Outlook and modern content together. Keeps them co-located in your template.
+Use `fallback` to provide Outlook-specific markup alongside your modern default. Children are the default (modern clients), `fallback` is what Outlook gets.
 
 ```tsx
-<Outlook fallback={<div>Modern clients see this</div>}>
-  <table><tbody><tr><td>Outlook sees this</td></tr></tbody></table>
+<Outlook fallback={<table><tbody><tr><td>Outlook gets this</td></tr></tbody></table>}>
+  <div>Modern clients see this</div>
 </Outlook>
 ```
 
@@ -91,10 +91,10 @@ Target specific Outlook versions with `expr`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | required | Outlook content |
-| `not` | `boolean` | `false` | Invert — render for non-Outlook clients |
+| `children` | `ReactNode` | required | Default content (modern clients), or Outlook content when using `not`/standalone |
+| `not` | `boolean` | `false` | Invert — render children for non-Outlook clients only |
 | `expr` | `string` | — | Custom conditional expression (e.g. `"gte mso 9"`) |
-| `fallback` | `ReactNode` | — | Non-Outlook content (renders both blocks) |
+| `fallback` | `ReactNode` | — | Outlook-specific content (renders both blocks when provided) |
 
 #### Outlook Version Numbers
 
