@@ -59,6 +59,14 @@
   ],
   "author": "Jarod",
   "license": "MIT",
+  "homepage": "https://github.com/stewartjarod/react-email-mso#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stewartjarod/react-email-mso.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stewartjarod/react-email-mso/issues"
+  },
   "publishConfig": {
     "access": "public"
   }
