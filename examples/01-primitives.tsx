@@ -90,7 +90,7 @@ async function main() {
   if (html.includes('<!--[if gte mso 9]>')) {
     console.log('[OK] <!--[if gte mso 9]> expression found');
   }
-  if (!html.includes('<mso-if') && !html.includes('<mso-else') && !html.includes('<mso-expr')) {
+  if (!html.includes('<mso-')) {
     console.log('[OK] No leftover custom elements');
   }
 }

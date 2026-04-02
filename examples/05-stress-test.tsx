@@ -51,13 +51,13 @@ test('Content with HTML entities survives processing', () => {
 });
 
 // --- Edge case 3: Multiple pairs using new API ---
-test('Multiple Outlook/Outlook not pairs all get replaced', () => {
+test('Multiple Outlook/Outlook expr pairs all get replaced', () => {
   const html = renderToStaticMarkup(
     <div>
       <Outlook><p>A</p></Outlook>
-      <Outlook not><p>B</p></Outlook>
+      <Outlook expr="!mso"><p>B</p></Outlook>
       <Outlook><p>C</p></Outlook>
-      <Outlook not><p>D</p></Outlook>
+      <Outlook expr="!mso"><p>D</p></Outlook>
       <Outlook><p>E</p></Outlook>
     </div>
   );
@@ -114,7 +114,7 @@ test('Running processConditionals twice produces same output', () => {
   const html = renderToStaticMarkup(
     <div>
       <Outlook><p>test</p></Outlook>
-      <Outlook not><p>test</p></Outlook>
+      <Outlook expr="!mso"><p>test</p></Outlook>
     </div>
   );
   const once = processConditionals(html);
@@ -125,7 +125,7 @@ test('Running processConditionals twice produces same output', () => {
 // --- Edge case 8: Large email with many conditionals ---
 test('Handles 50 conditional blocks without issues', () => {
   const blocks = Array.from({ length: 50 }, (_, i) =>
-    `<mso-if><td>Row ${i}</td></mso-if><mso-else><div>Row ${i}</div></mso-else>`
+    `<mso-expr data-expr="mso"><td>Row ${i}</td></mso-expr><mso-else-expr data-expr="!mso"><div>Row ${i}</div></mso-else-expr>`
   ).join('');
   const result = processConditionals(`<table>${blocks}</table>`);
   const msoCount = (result.match(/<!--\[if mso\]>/g) || []).length;
@@ -134,10 +134,10 @@ test('Handles 50 conditional blocks without issues', () => {
 });
 
 // --- Edge case 9: Text content that looks like a marker ---
-test('Text containing "mso-if" as plain text is NOT affected', () => {
-  const html = '<p>Use the &lt;mso-if&gt; element for Outlook</p>';
+test('Text containing "mso-expr" as plain text is NOT affected', () => {
+  const html = '<p>Use the &lt;mso-expr&gt; element for Outlook</p>';
   const result = processConditionals(html);
-  assert(result.includes('&lt;mso-if&gt;'), 'escaped markers should survive');
+  assert(result.includes('&lt;mso-expr&gt;'), 'escaped markers should survive');
 });
 
 // --- Edge case 10: Outlook inside deeply nested HTML ---

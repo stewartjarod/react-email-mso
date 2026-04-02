@@ -4,7 +4,7 @@ MSO conditional comments for [react-email](https://react.email). Outlook-safe re
 
 React can't output HTML comments, which makes `<!--[if mso]>` impossible. This package solves it with custom HTML elements that pass through React's renderer untouched, then a simple string post-processor converts them to real MSO conditional comments.
 
-~30 lines of code. Zero dependencies. Works with react-email, jsx-email, or plain `react-dom/server`.
+~20 lines of code. Zero dependencies. Works with react-email, jsx-email, or plain `react-dom/server`.
 
 ## Install
 
@@ -50,7 +50,7 @@ Output:
 
 ### `<Outlook>`
 
-One component, three modes.
+One component, two modes.
 
 #### Paired mode (most common)
 
@@ -64,15 +64,11 @@ Use `fallback` to provide Outlook-specific markup alongside your modern default.
 
 #### Standalone mode
 
-Render content for only Outlook, or only non-Outlook clients.
+Render content only for Outlook (or a specific version).
 
 ```tsx
 <Outlook>
   <table><tbody><tr><td>Only Outlook sees this</td></tr></tbody></table>
-</Outlook>
-
-<Outlook not>
-  <div>Everything except Outlook sees this</div>
 </Outlook>
 ```
 
@@ -87,14 +83,21 @@ Target specific Outlook versions with `expr`.
 {/* Output: <!--[if gte mso 9]><style>...</style><![endif]--> */}
 ```
 
+Works with `fallback` too:
+
+```tsx
+<Outlook expr="gte mso 9" fallback={<table><tbody><tr><td>Outlook 9+ gets this</td></tr></tbody></table>}>
+  <div>Everyone else sees this</div>
+</Outlook>
+```
+
 #### Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | required | Default content (modern clients), or Outlook content when using `not`/standalone |
-| `not` | `boolean` | `false` | Invert — render children for non-Outlook clients only |
-| `expr` | `string` | — | Custom conditional expression (e.g. `"gte mso 9"`) |
-| `fallback` | `ReactNode` | — | Outlook-specific content (renders both blocks when provided) |
+| `children` | `ReactNode` | required | Default content (modern clients in paired mode, Outlook content in standalone mode) |
+| `expr` | `string` | `'mso'` | Conditional expression (e.g. `"gte mso 9"`, `"!mso"`) |
+| `fallback` | `ReactNode` | — | Outlook-specific content (enables paired mode when provided) |
 
 #### Outlook Version Numbers
 
@@ -228,57 +231,20 @@ const Email = () => (
 | `width` | `number` | required | Column width in pixels |
 | `children` | `ReactNode` | required | Column content |
 
-#### What it renders
-
-**Outlook** (ghost table):
-
-```html
-<!--[if mso]>
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-  <tr>
-    <td width="280" valign="top">
-<![endif]-->
-      <div style="display:inline-block;width:100%;max-width:280px">
-        <!-- Column 1 content -->
-      </div>
-<!--[if mso]>
-    </td>
-    <td width="20">&nbsp;</td>
-    <td width="280" valign="top">
-<![endif]-->
-      <div style="display:inline-block;width:100%;max-width:280px">
-        <!-- Column 2 content -->
-      </div>
-<!--[if mso]>
-    </td>
-  </tr>
-</table>
-<![endif]-->
-```
-
-**Modern clients:** Inline-block divs that respect `max-width` and stack on mobile with a media query:
-
-```css
-@media screen and (max-width: 600px) {
-  .column { display: block !important; width: 100% !important; }
-}
-```
-
 ## How It Works
 
 React can't output HTML comments. Every attempt — string interpolation, `dangerouslySetInnerHTML` — gets escaped or stripped.
 
 **The insight:** Custom HTML elements (names with a hyphen) pass through every React renderer untouched. React treats them as web components and renders them literally.
 
-This package uses three custom elements as markers:
+This package uses two custom elements as markers:
 
 | Element | Becomes |
 |---------|---------|
-| `<mso-if>...</mso-if>` | `<!--[if mso]>...<![endif]-->` |
-| `<mso-else>...</mso-else>` | `<!--[if !mso]><!-->...<!--<![endif]-->` |
-| `<mso-expr data-expr="X">...</mso-expr>` | `<!--[if X]>...<![endif]-->` |
+| `<mso-expr data-expr="X">` | `<!--[if X]>...<![endif]-->` |
+| `<mso-else-expr data-expr="X">` | `<!--[if X]><!-->...<!--<![endif]-->` |
 
-`<Outlook>` emits these custom elements based on its props. Then `processConditionals()` does a simple string replacement on the final HTML — no AST parsing, no rehype pipeline, no custom renderer.
+`<Outlook>` emits these custom elements based on its props. Then `processConditionals()` does a single-pass regex replacement on the final HTML — no AST parsing, no rehype pipeline, no custom renderer.
 
 ## Constraints
 
