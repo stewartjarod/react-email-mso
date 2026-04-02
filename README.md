@@ -64,13 +64,19 @@ Use `fallback` to provide Outlook-specific markup alongside your modern default.
 
 #### Standalone mode
 
-Render content only for Outlook (or a specific version).
+Render content for only Outlook, or only non-Outlook clients.
 
 ```tsx
 <Outlook>
   <table><tbody><tr><td>Only Outlook sees this</td></tr></tbody></table>
 </Outlook>
+
+<Outlook not>
+  <div>Everything except Outlook sees this</div>
+</Outlook>
 ```
+
+The `not` prop uses the [downlevel-revealed](https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/ms537512(v=vs.85)) comment pattern, which is required for non-MSO clients to see the content. Do not use `expr="!mso"` for this — it produces a normal conditional comment that is invisible to all clients.
 
 #### Version targeting
 
@@ -96,7 +102,8 @@ Works with `fallback` too:
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `ReactNode` | required | Default content (modern clients in paired mode, Outlook content in standalone mode) |
-| `expr` | `string` | `'mso'` | Conditional expression (e.g. `"gte mso 9"`, `"!mso"`) |
+| `not` | `boolean` | `false` | Use downlevel-revealed pattern — content visible to non-Outlook clients |
+| `expr` | `string` | `'mso'` | Conditional expression (e.g. `"gte mso 9"`) |
 | `fallback` | `ReactNode` | — | Outlook-specific content (enables paired mode when provided) |
 
 #### Outlook Version Numbers

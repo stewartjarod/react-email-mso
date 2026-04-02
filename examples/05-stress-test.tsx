@@ -51,13 +51,13 @@ test('Content with HTML entities survives processing', () => {
 });
 
 // --- Edge case 3: Multiple pairs using new API ---
-test('Multiple Outlook/Outlook expr pairs all get replaced', () => {
+test('Multiple Outlook/Outlook not pairs all get replaced', () => {
   const html = renderToStaticMarkup(
     <div>
       <Outlook><p>A</p></Outlook>
-      <Outlook expr="!mso"><p>B</p></Outlook>
+      <Outlook not><p>B</p></Outlook>
       <Outlook><p>C</p></Outlook>
-      <Outlook expr="!mso"><p>D</p></Outlook>
+      <Outlook not><p>D</p></Outlook>
       <Outlook><p>E</p></Outlook>
     </div>
   );
@@ -114,7 +114,7 @@ test('Running processConditionals twice produces same output', () => {
   const html = renderToStaticMarkup(
     <div>
       <Outlook><p>test</p></Outlook>
-      <Outlook expr="!mso"><p>test</p></Outlook>
+      <Outlook not><p>test</p></Outlook>
     </div>
   );
   const once = processConditionals(html);

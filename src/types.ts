@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 export type OutlookProps = {
   children: ReactNode;
+  not?: boolean;
   expr?: string;
   fallback?: ReactNode;
 };

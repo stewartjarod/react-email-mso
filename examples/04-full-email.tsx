@@ -48,7 +48,7 @@ function SafeContainer({
         />
       </Outlook>
 
-      <Outlook expr="!mso">
+      <Outlook not>
         <div
           dangerouslySetInnerHTML={{
             __html: `<div style="max-width:${width}px;margin:0 auto;padding:0 20px">`,
@@ -58,7 +58,7 @@ function SafeContainer({
 
       {children}
 
-      <Outlook expr="!mso">
+      <Outlook not>
         <div dangerouslySetInnerHTML={{ __html: '</div>' }} />
       </Outlook>
 

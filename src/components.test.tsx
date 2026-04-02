@@ -33,14 +33,15 @@ describe('Outlook', () => {
     expect(result).not.toContain('<mso-');
   });
 
-  it('renders not-mso content via expr', () => {
+  it('not prop uses downlevel-revealed pattern (visible to non-MSO clients)', () => {
     const html = renderToStaticMarkup(
-      <Outlook expr="!mso">
+      <Outlook not>
         <div>Modern only</div>
       </Outlook>
     );
     const result = processConditionals(html);
-    expect(result).toContain('<!--[if !mso]>');
+    expect(result).toContain('<!--[if !mso]><!-->');
+    expect(result).toContain('<!--<![endif]-->');
     expect(result).toContain('Modern only');
     expect(result).not.toContain('<mso-');
   });
