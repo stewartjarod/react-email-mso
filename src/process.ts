@@ -1,9 +1,11 @@
 export function processConditionals(html: string): string {
-  return html
-    .replace(/<mso-if\s*>/g, '<!--[if mso]>')
-    .replace(/<\/mso-if\s*>/g, '<![endif]-->')
-    .replace(/<mso-else\s*>/g, '<!--[if !mso]><!-->')
-    .replace(/<\/mso-else\s*>/g, '<!--<![endif]-->')
-    .replace(/<mso-expr\s[^>]*data-expr="([^"]+)"[^>]*>/g, '<!--[if $1]>')
-    .replace(/<\/mso-expr\s*>/g, '<![endif]-->');
+  return html.replace(
+    /<(\/?)(mso-(?:else-)?expr)([^>]*)>/g,
+    (_, slash, tag, attrs) => {
+      const isElse = tag === 'mso-else-expr';
+      if (slash) return isElse ? '<!--<![endif]-->' : '<![endif]-->';
+      const expr = attrs.match(/data-expr="([^"]+)"/)?.[1] ?? 'mso';
+      return isElse ? `<!--[if ${expr}]><!-->` : `<!--[if ${expr}]>`;
+    },
+  );
 }

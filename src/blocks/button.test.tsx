@@ -10,14 +10,14 @@ describe('BulletproofButton', () => {
         Click me
       </BulletproofButton>
     );
-    // Should contain mso-if with VML
-    expect(html).toContain('<mso-if>');
-    expect(html).toContain('v:roundrect');
-    expect(html).toContain('https://example.com');
-    expect(html).toContain('Click me');
-    // Should contain mso-else with styled <a>
-    expect(html).toContain('<mso-else>');
-    expect(html).toContain('<a');
+    const result = processConditionals(html);
+    expect(result).toContain('<!--[if mso]>');
+    expect(result).toContain('v:roundrect');
+    expect(result).toContain('https://example.com');
+    expect(result).toContain('Click me');
+    expect(result).toContain('<!--[if !mso]><!-->');
+    expect(result).toContain('<a');
+    expect(result).not.toContain('<mso-');
     // mso-hide:all is unnecessary — <NotOutlook> conditional already hides from Outlook
   });
 
@@ -62,8 +62,7 @@ describe('BulletproofButton', () => {
     // VML inside mso block
     expect(result).toContain('v:roundrect');
     // No leftover custom elements
-    expect(result).not.toContain('<mso-if');
-    expect(result).not.toContain('<mso-else');
+    expect(result).not.toContain('<mso-');
   });
 
   it('escapes HTML in props to prevent XSS in VML output', () => {

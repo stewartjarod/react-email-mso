@@ -64,7 +64,7 @@ export function Columns({ children, gap = 0 }: ColumnsProps) {
             </Outlook>
 
             {!isLast && gap > 0 && (
-              <Outlook not>
+              <Outlook expr="!mso">
                 <div style={{ display: 'inline-block', width: gap }}>&nbsp;</div>
               </Outlook>
             )}
