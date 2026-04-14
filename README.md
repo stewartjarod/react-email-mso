@@ -97,6 +97,34 @@ Works with `fallback` too:
 </Outlook>
 ```
 
+#### Nesting
+
+`<Outlook>` components can be nested. The outer block emits a commented conditional; inner blocks emit the short form that the Outlook Word engine parses correctly inside an already-hidden scope. This is how you version-gate content within a broader MSO block.
+
+```tsx
+<Outlook>
+  <p>All Outlook versions see this.</p>
+  <Outlook expr="gte mso 16">
+    <p>Only Outlook 2016+ sees this.</p>
+  </Outlook>
+</Outlook>
+```
+
+Output:
+
+```html
+<!--[if mso]>
+  <p>All Outlook versions see this.</p>
+  <![if gte mso 16]>
+    <p>Only Outlook 2016+ sees this.</p>
+  <![endif]>
+<![endif]-->
+```
+
+Why the inner form is different: HTML comments can't nest — a second `<!--[if ...]>` inside the outer comment would be closed by its own `-->`. The short form (`<![if ...]>`) is Outlook's alternate hidden-conditional syntax and is valid inside an existing comment-hidden block.
+
+Note: `<Outlook not>` nested inside `<Outlook>` is a semantic null (`mso AND !mso` — nothing renders) but produces valid HTML. Avoid it; it's usually a sign the outer wrapper is wrong.
+
 #### Props
 
 | Prop | Type | Default | Description |
@@ -256,7 +284,6 @@ This package uses two custom elements as markers:
 ## Constraints
 
 - **React 19+ required.** React 18's SSR silently drops children of custom elements ([facebook/react#27403](https://github.com/facebook/react/issues/27403)). React 19 fixed this. react-email v2 already uses React 19 streaming renderers.
-- **Don't nest `<Outlook>` inside `<Outlook>`.** MSO conditional comments can't be nested — Outlook's parser will misinterpret it. Use a single `<Outlook>` wrapper per block.
 - **VML requires XML namespace declarations** on your `<html>` tag for Outlook to render VML elements:
 
 ```html

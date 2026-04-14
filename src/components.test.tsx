@@ -69,4 +69,22 @@ describe('Outlook', () => {
     expect(result).toMatch(/<!--\[if !\(gte mso 9\)\]><!-->.*Everyone else.*<!--<!\[endif\]-->/s);
     expect(result).not.toContain('<mso-');
   });
+
+  it('nested Outlook: outer commented, inner short-form for version-gated content', () => {
+    const html = renderToStaticMarkup(
+      <Outlook>
+        <span>all outlook</span>
+        <Outlook expr="gte mso 16">
+          <span>only 2016+</span>
+        </Outlook>
+      </Outlook>
+    );
+    const result = processConditionals(html);
+    expect(result).toContain('<!--[if mso]>');
+    expect(result).toContain('<![if gte mso 16]>');
+    expect(result).toContain('<![endif]>');
+    expect(result).toContain('<![endif]-->');
+    expect(result).not.toContain('<!--[if gte mso 16]>');
+    expect(result).not.toContain('<mso-');
+  });
 });

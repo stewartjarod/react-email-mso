@@ -1,6 +1,6 @@
 {
   "name": "react-email-mso",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "MSO conditional comments for react-email. Outlook-safe rendering with zero dependencies.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
