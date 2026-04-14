@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 export type OutlookProps = {
   children: ReactNode;
+  /** Emit the downlevel-revealed pattern so content is visible to non-MSO clients. */
   not?: boolean;
   expr?: string;
   fallback?: ReactNode;

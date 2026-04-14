@@ -30,7 +30,10 @@ import {
   processConditionals,
 } from '../src';
 
-// Reusable safe container — fixed table for Outlook, fluid div for modern
+// Reusable safe container — fixed table for Outlook, fluid div for modern.
+// Uses split-tag pattern (dangerouslySetInnerHTML) instead of fallback because
+// children may contain their own conditional blocks. With fallback, children
+// render twice and nested downlevel-revealed blocks leak through in Gmail.
 function SafeContainer({
   children,
   width = 600,
