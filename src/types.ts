@@ -23,6 +23,10 @@ declare module 'react' {
       > & {
         'data-expr'?: string;
       };
+      'ghost-slot-marker': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
     }
   }
 }
